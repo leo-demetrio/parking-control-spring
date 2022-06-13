@@ -4,6 +4,7 @@ import com.leodemetrio.parkingcontrol.dto.ParkingSpotDto;
 import com.leodemetrio.parkingcontrol.model.ParkingSpotModel;
 import com.leodemetrio.parkingcontrol.service.ParkingSpotService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +18,14 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/parking-spot")
+@Log4j2
 public class ParkingSpotController {
     private final ParkingSpotService parkingSpotService;
 
@@ -45,6 +49,14 @@ public class ParkingSpotController {
     @GetMapping
     public ResponseEntity<List<ParkingSpotModel>> getAllParkingSpots(){
         return ResponseEntity.status(HttpStatus.OK).body(parkingSpotService.findAll());
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getOneParkingSpots(@PathVariable(value = "id") UUID id){
+        Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
+        if(!parkingSpotModelOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parking not found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(parkingSpotModelOptional.get());
     }
 
 
